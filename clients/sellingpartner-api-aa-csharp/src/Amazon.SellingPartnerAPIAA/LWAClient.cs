@@ -9,12 +9,15 @@ namespace Amazon.SellingPartnerAPIAA
     public class LWAClient
     {
         public const string AccessTokenKey = "access_token";
+        public const string AccessTokenExpireKey = "expires_in";
         public const string JsonMediaType = "application/json; charset=utf-8";
 
         public IRestClient RestClient { get; set; }
         public LWAAccessTokenRequestMetaBuilder LWAAccessTokenRequestMetaBuilder { get; set; }
         public LWAAuthorizationCredentials LWAAuthorizationCredentials { get; private set; }
 
+        private string AccessToken = null;
+        private DateTime AccessTokenValidTill = DateTime.MinValue;
 
         public LWAClient(LWAAuthorizationCredentials lwaAuthorizationCredentials)
         {
@@ -27,9 +30,15 @@ namespace Amazon.SellingPartnerAPIAA
         /// Retrieves access token from LWA
         /// </summary>
         /// <param name="lwaAccessTokenRequestMeta">LWA AccessTokenRequest metadata</param>
+        /// <param name="force">Enforce LWA access token request also if still valid</param>
         /// <returns>LWA Access Token</returns>
-        public virtual string GetAccessToken()
+        public virtual string GetAccessToken(bool force = false)
         {
+            if (!force
+                && !String.IsNullOrEmpty(AccessToken)
+                && DateTime.UtcNow < AccessTokenValidTill)
+                return AccessToken;
+
             LWAAccessTokenRequestMeta lwaAccessTokenRequestMeta = LWAAccessTokenRequestMetaBuilder.Build(LWAAuthorizationCredentials);
             var accessTokenRequest = new RestRequest(LWAAuthorizationCredentials.Endpoint.AbsolutePath, Method.POST);
 
@@ -50,6 +59,9 @@ namespace Amazon.SellingPartnerAPIAA
                 JObject responseJson = JObject.Parse(response.Content);
 
                 accessToken = responseJson.GetValue(AccessTokenKey).ToString();
+                AccessToken = accessToken;
+                var secondsToAdd = 0.8 * int.Parse(responseJson.GetValue(AccessTokenExpireKey).ToString());
+                AccessTokenValidTill = DateTime.UtcNow.AddSeconds(secondsToAdd);
             }
             catch (Exception e)
             {
