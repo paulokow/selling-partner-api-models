@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using RestSharp;
 
@@ -52,6 +53,24 @@ namespace Amazon.SellingPartnerAPIAA
             return request;
         }
 
+        // based on https://github.com/restsharp/RestSharp/blob/0ed7b0a6b64ab4b9838c2c0cb76a1808facebe09/src/RestSharp/RestClient.cs#L293
+        private string GetResourceWithSegmentParamsValues(IRestRequest request)
+        {
+            var assembled = request.Resource;
+
+            var parameters = request.Parameters.Where(p => p.Type == ParameterType.UrlSegment).ToList();
+
+            foreach (var parameter in parameters)
+            {
+                var paramPlaceHolder = $"{{{parameter.Name}}}";
+                var paramValue = parameter.Value.ToString();
+
+                assembled = assembled.Replace(paramPlaceHolder, paramValue);
+            }
+
+            return assembled;
+        }
+
         private string CreateCanonicalRequest(IRestRequest restRequest, string signedHeaders)
         {
             var canonicalizedRequest = new StringBuilder();
@@ -59,7 +78,7 @@ namespace Amazon.SellingPartnerAPIAA
             canonicalizedRequest.AppendFormat("{0}\n", restRequest.Method);
 
             //CanonicalURI
-            canonicalizedRequest.AppendFormat("{0}\n", AwsSignerHelper.ExtractCanonicalURIParameters(restRequest.Resource));
+            canonicalizedRequest.AppendFormat("{0}\n", AwsSignerHelper.ExtractCanonicalURIParameters(GetResourceWithSegmentParamsValues(restRequest)));
 
             //CanonicalQueryString
             canonicalizedRequest.AppendFormat("{0}\n", AwsSignerHelper.ExtractCanonicalQueryString(restRequest));
