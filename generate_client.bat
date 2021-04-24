@@ -1,0 +1,1 @@
+docker run --rm -v "%cd%":/local swaggerapi/swagger-codegen-cli generate -l csharp -i /local/models/orders-api-model/ordersV0.json -o /local/out/csharp -t /local/clients/sellingpartner-api-aa-csharp/src/Amazon.SellingPartnerAPIAA/resources/swagger-codegen/templates -c /local/swagger-codegen-config.json 
