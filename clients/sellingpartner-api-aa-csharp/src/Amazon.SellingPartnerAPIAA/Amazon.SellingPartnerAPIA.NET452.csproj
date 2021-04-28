@@ -7,8 +7,8 @@
     <ProjectGuid>{D4F7B3C1-02F1-4C19-9971-5B340AD9AC85}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>eu.paulonet.common.invoicematcher</RootNamespace>
-    <AssemblyName>eu.paulonet.common.invoicematcher</AssemblyName>
+    <RootNamespace>Amazon.SellingPartnerAPIAA</RootNamespace>
+    <AssemblyName>Amazon.SellingPartnerAPIA.NET452</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
